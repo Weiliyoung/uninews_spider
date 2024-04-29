@@ -1,0 +1,4 @@
+# Ignore Scrapy configuration file
+scrapy.cfg
+
+.idea
