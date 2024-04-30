@@ -1,7 +1,7 @@
 # Ignore Scrapy configuration file
 
 /settings.py
-
+/scrapy.log
 scrapy.cfg
 venv/
 
