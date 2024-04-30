@@ -8,6 +8,7 @@
 from itemadapter import ItemAdapter
 import pymysql
 
+
 class UninewsSpiderPipeline:
     def process_item(self, item, spider):
         self.insert_db(item)
@@ -19,7 +20,8 @@ class UninewsSpiderPipeline:
         password = spider.settings.get('MYSQL_PASSWORD')
         database = spider.settings.get('MYSQL_DATABASE')
         port = spider.settings.get('MYSQL_PORT')
-        self.db_connect = pymysql.connect(host=host, user=user, password=password, database=database, port=port, charset='utf8')
+        self.db_connect = pymysql.connect(host=host, user=user, password=password, database=database, port=port,
+                                          charset='utf8')
         self.cursor = self.db_connect.cursor()
         print("数据库连接成功")
 
@@ -36,15 +38,16 @@ class UninewsSpiderPipeline:
             item['url'],
             item['crawl_time'],
         )
-        sql = 'INSERT INTO test(title, source, date, content, url, crawl_time) VALUES (%s, %s, %s, %s, %s, %s)'
-        self.cursor.execute(sql,values)
-        self.db_connect.commit()
+        sql = 'SELECT * FROM test WHERE title = %s'
+        self.cursor.execute(sql, (item['title'],))
+        result = self.cursor.fetchone()
+        
+        # 如果查询结果为空，则说明数据不存在，可以插入到数据库中
+        if not result:
+            sql = 'INSERT INTO test(title, source, date, content, url, crawl_time) VALUES (%s, %s, %s, %s, %s, %s)'
+            self.cursor.execute(sql, values)
+            self.db_connect.commit()
+            print("数据插入成功")
+        else:
+            print("数据已存在，无需插入")
         return item
-
-        # try:
-        #     print("准备插入的数据:", values)
-        #     self.cursor.execute(sql, values)
-        #     self.db_connect.commit()
-        #     print("数据保存成功")
-        # except Exception as e:
-        #     print("数据保存失败:", e)
