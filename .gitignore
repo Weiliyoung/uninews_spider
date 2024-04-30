@@ -1,4 +1,8 @@
 # Ignore Scrapy configuration file
+
+/settings.py
+
 scrapy.cfg
+venv
 
 .idea
