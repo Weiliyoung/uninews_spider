@@ -71,7 +71,7 @@ class GDHSCSpider(scrapy.Spider):
             date=date,
             content=content,
             url=url,
-            crawl_time=crawl_time
+            crawl_time=crawl_time,
         )
 
         # 组装数据
