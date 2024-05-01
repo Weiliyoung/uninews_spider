@@ -3,10 +3,10 @@
 /settings.py
 /scrapy.log
 scrapy.cfg
-/failed_urls.txt
-/scraped_urls.txt
-/skipped_urls.txt
-/output.json
+failed_urls.txt
+scraped_urls.txt
+skipped_urls.txt
+output.json
 
 
 venv/
