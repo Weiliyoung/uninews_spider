@@ -5,6 +5,8 @@
 
 
 # useful for handling different item types with a single interface
+
+
 from itemadapter import ItemAdapter
 # import pymysql
 #
@@ -53,6 +55,7 @@ from itemadapter import ItemAdapter
 #         return item
 
 import pymysql
+from datetime import datetime
 
 
 class UninewsSpiderPipeline:
@@ -112,7 +115,7 @@ class UninewsSpiderPipeline:
             item['date'],
             item['content'],
             item['url'],
-            item['crawl_time'],
+            item['crawl_time']
         )
         sql = 'INSERT INTO test(title, source, date, content, url, crawl_time) VALUES (%s, %s, %s, %s, %s, %s)'
         self.cursor.execute(sql, values)
