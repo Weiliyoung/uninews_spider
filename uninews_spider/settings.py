@@ -113,8 +113,8 @@ DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
 # 设置数据库
 
 MYSQL_HOST = 'localhost'
-MYSQL_USER = 'weiyuchen'
-MYSQL_PASSWORD = ''
+MYSQL_USER = 'weiyang'
+MYSQL_PASSWORD = 'senlife@123'
 MYSQL_DATABASE = 'scrapy_school'
 MYSQL_PORT = 3306
 
