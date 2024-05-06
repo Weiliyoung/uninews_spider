@@ -1,6 +1,8 @@
 # Ignore Scrapy configuration file
 
 /settings.py
+uninews_spider/to/setting.py
+
 /scrapy.log
 scrapy.cfg
 failed_urls.txt
@@ -9,6 +11,7 @@ skipped_urls.txt
 output.json
 
 
+__pycache__/
 venv/
 
 .idea
