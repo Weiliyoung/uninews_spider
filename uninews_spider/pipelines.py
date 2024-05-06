@@ -57,6 +57,13 @@ class UninewsSpiderPipeline:
             spider.logger.error(f"处理 {item['url']} 时出错: {str(e)}")
             return item
 
+    def is_valid_item(self, item):
+        required_fields = ['title', 'content', 'url', 'crawl_time']
+        for field in required_fields:
+            if item.get(field) is None:
+                return False
+        return True
+
     def check_exists(self, item):
         sql = 'SELECT 1 FROM test WHERE url = %s'
         self.cursor.execute(sql, (item['url'],))
