@@ -55,9 +55,7 @@ class SZUpider(scrapy.Spider):
 
         # 提取内容
         text_content = response.xpath('//div[@class="v_news_content"]/p/span//text()').getall()
-        content = json.dumps(text_content)
-        if content is not None:
-            content = content.strip()
+        content = json.dumps(text_content, ensure_ascii=False).strip()
 
         # 页面URL
         url = response.url
