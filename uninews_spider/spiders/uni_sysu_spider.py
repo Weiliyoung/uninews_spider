@@ -1,3 +1,5 @@
+# 中山大学硕士招生公告
+
 import scrapy
 from datetime import datetime
 from uninews_spider.items.uni_sysu import SysuItem
