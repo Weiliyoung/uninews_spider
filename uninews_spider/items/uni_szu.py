@@ -1,4 +1,6 @@
 # 深圳大学
+# 服务于spiders.uni_szu.py文件
+# mysql字段的定义
 import scrapy
 
 

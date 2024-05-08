@@ -58,7 +58,7 @@ class UninewsSpiderPipeline:
             return item
 
     def is_valid_item(self, item):
-        required_fields = ['title', 'content', 'url', 'crawl_time']
+        required_fields = ['title', 'source', 'date', 'content', 'url', 'crawl_time']
         for field in required_fields:
             if item.get(field) is None:
                 return False
@@ -72,13 +72,13 @@ class UninewsSpiderPipeline:
     def insert_db(self, item):
         values = (
             item['title'],
-            # item['source'],
-            # item['date'],
+            item['source'],
+            item['date'],
             item['content'],
             item['url'],
             item['crawl_time']
         )
-        sql = 'INSERT INTO test(title, content, url, crawl_time) VALUES (%s, %s, %s, %s)'
+        sql = 'INSERT INTO test(title, source, date, content, url, crawl_time) VALUES (%s, %s,%s, %s, %s, %s)'
         self.cursor.execute(sql, values)
         self.db_connect.commit()
         print("数据插入成功")
