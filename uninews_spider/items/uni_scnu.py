@@ -1,10 +1,10 @@
-# 暨南大学
-# 服务于spiders.uni_jnu.py文件
+# 华南师范大学
+# 服务于spiders.uni_scnu.py文件
 # mysql字段的定义
 import scrapy
 
 
-class JnuItem(scrapy.Item):
+class ScnuItem(scrapy.Item):
     id = scrapy.Field()
     title = scrapy.Field()
     source = scrapy.Field()
