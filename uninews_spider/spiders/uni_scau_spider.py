@@ -46,15 +46,18 @@ class SZUpider(scrapy.Spider):
     # 爬取数据
     def parse_news_content(self, response):
         # 提取标题
-        title = response.xpath('//div[@class="nmain"]//div/h2/text()').get()
+        title = response.xpath('//table[3]//tr[2]/td[2]/b/font/text()').get()
         if title is not None:
             title = title.strip()
 
+        # 来源
+        source = response.xpath('//table[3]//table//tr[4]//td[3]/text()').get.strip()
+
         # 提取时间
-        # date = response.xpath('//div[@class="list"]/ul/li/span()').get().strip()
+        date = response.xpath('//table[3]//table//tr[4]//td[5]/text()').get().strip()
 
         # 提取内容
-        text_content = response.xpath('//div[@class="v_news_content"]/p/span//text()').getall()
+        text_content = response.xpath('//table//tr//p/span/text()').getall()
         content = json.dumps(text_content, ensure_ascii=False).strip()
 
         # 页面URL
@@ -65,7 +68,8 @@ class SZUpider(scrapy.Spider):
 
         item = ScauItem(
             title=title,
-            # date=date,
+            source=source,
+            date=date,
             content=content,
             url=url,
             crawl_time=crawl_time,

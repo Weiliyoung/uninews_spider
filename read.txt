@@ -46,4 +46,5 @@ uni_szu.py
 8、华南农业大学：{
 uni_scau_spider.py
 uni_scau.py
+：有反爬虫机制
 }
