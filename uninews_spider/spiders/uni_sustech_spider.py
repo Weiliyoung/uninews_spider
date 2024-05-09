@@ -1,4 +1,4 @@
-# 广东工业大学硕士招生公告
+# 南方科技大学硕士招生公告
 
 import scrapy
 import json
@@ -6,8 +6,8 @@ from datetime import datetime
 from uninews_spider.items.uni_gdut import GdutItem
 
 
-class GDUTpider(scrapy.Spider):
-    name = 'gdut_spider'
+class SUSTECHpider(scrapy.Spider):
+    name = 'sustech_spider'
     allowed_domains = ['yzw.gdut.edu.cn']
     start_urls = ['https://yzw.gdut.edu.cn/']
     custom_settings = {
@@ -51,7 +51,7 @@ class GDUTpider(scrapy.Spider):
             title = title.strip()
 
         # 提取时间
-        # date = response.xpath('//div[3]/form/div/div[1]/p/text()').get().strip()
+        date = response.xpath('//div[3]/form/div/div[1]/p/text()').get().strip()
 
         # 提取内容
         text_content = response.xpath('//*[@id="vsb_content_500"]//div[1]/p/span').getall()
@@ -65,7 +65,7 @@ class GDUTpider(scrapy.Spider):
 
         item = GdutItem(
             title=title,
-            # date=date,
+            date=date,
             content=content,
             url=url,
             crawl_time=crawl_time,

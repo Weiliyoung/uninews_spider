@@ -1,11 +1,11 @@
-# 广东工业大学
-# 服务于spiders.uni_gdut_spider.py文件
+# 南方科技大学
+# 服务于spiders.uni_sustech_spider.py文件
 # mysql字段的定义
 
 import scrapy
 
 
-class GdutItem(scrapy.Item):
+class SustechItem(scrapy.Item):
     id = scrapy.Field()
     title = scrapy.Field()
     date = scrapy.Field()
