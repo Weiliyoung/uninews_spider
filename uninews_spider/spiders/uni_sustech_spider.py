@@ -3,13 +3,13 @@
 import scrapy
 import json
 from datetime import datetime
-from uninews_spider.items.uni_gdut import GdutItem
+from uninews_spider.items.uni_sustech import SustechItem
 
 
 class SUSTECHpider(scrapy.Spider):
     name = 'sustech_spider'
-    allowed_domains = ['yzw.gdut.edu.cn']
-    start_urls = ['https://yzw.gdut.edu.cn/']
+    allowed_domains = ['gs.sustech.edu.cn']
+    start_urls = ['https://gs.sustech.edu.cn/#/admission/index']
     custom_settings = {
         'DOWNLOAD_DELAY': 2,  # 下载延迟
         'CONCURRENT_REQUESTS': 16,  # 减少并发请求数
@@ -22,7 +22,7 @@ class SUSTECHpider(scrapy.Spider):
         self.logger.debug("Parsing started for URL: %s", response.url)
 
         # 在此处添加提取硕士招生链接的代码
-        recruitment_url = response.xpath('//a[text()="硕士招生"]/@href').get()
+        recruitment_url = response.xpath('(//*[@class="arrow"]/@href)[1]').get()
         if recruitment_url:
             yield response.follow(recruitment_url, callback=self.parse_recruitment_list)
 
@@ -30,13 +30,13 @@ class SUSTECHpider(scrapy.Spider):
     def parse_recruitment_list(self, response):
         self.logger.debug("Parsing started for URL:%s", response.url)
         # 在此添加提取硕士招生所有公告链接
-        news_links = response.xpath('//div[@class="main_conRCb"]/ul/li/a/@href').getall()
+        news_links = response.xpath('//div[contains(@class, "title rows-1-ellipsis")]/@href').getall()
         self.logger.info(f"当前页面 {response.url} 包含的所有的url: {news_links}")
         for link in news_links:
             yield response.follow(link, callback=self.parse_news_content)
 
         # 提取下一页的链接并递归跟踪
-        next_page_link = response.xpath('//div//table//td[2]/div/a[1]/@href').get()
+        next_page_link = response.xpath('//div/button[2]/@href').get()
         if next_page_link:
             self.logger.info(f"下一页的链接: {next_page_link}")
             yield response.follow(next_page_link, callback=self.parse_news_content)
@@ -46,24 +46,27 @@ class SUSTECHpider(scrapy.Spider):
     # 爬取数据
     def parse_news_content(self, response):
         # 提取标题
-        title = response.xpath('//h2/text()').get()
+        title = response.xpath('(//div[@class="title"]/text())[1]').get()
         if title is not None:
             title = title.strip()
 
         # 提取时间
-        date = response.xpath('//div[3]/form/div/div[1]/p/text()').get().strip()
+        date = response.xpath('//div[@class="date"]/text()').get().strip()
 
         # 提取内容
-        text_content = response.xpath('//*[@id="vsb_content_500"]//div[1]/p/span').getall()
+        text_content = response.xpath('//div[@class="content"]/p/text()').getall()
         content = json.dumps(text_content, ensure_ascii=False).strip()
 
         # 页面URL
         url = response.url
 
+        # 附件
+        # attachment = response.xpath('//div[@class="content"]//p/a/@href').get()
+
         # 爬虫时间
         crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        item = GdutItem(
+        item = SustechItem(
             title=title,
             date=date,
             content=content,
