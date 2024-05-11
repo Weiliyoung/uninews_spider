@@ -68,3 +68,10 @@ uni_sustech.py
 ：有反爬虫机制、href在class中
 有附件，后续添加
 }
+
+12、汕头大学{
+uni_stu_spider.py
+uni_stu.py
+:成功爬取
+下一页连接需修改
+}
