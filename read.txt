@@ -93,12 +93,27 @@ uni_smu.py
 15、广州中医药大学{
 uni_gzucm_spider.py
 uni_gzucm.py
+：成功爬取
+下一页
+}
+
+16、广州医科大学{
+uni_gzhum_spider.py
+uni_gzhum.py
+：反爬虫
+}
+
+17、广东医科大学{
+uni_gdmu_spider.py
+uni_gdmu.py
+：成功爬取
+下一页
+}
+
+18、广东药科大学{
 
 }
 
-16、广州医科大学
-17、广东医科大学
-18、广东药科大学
 19、深圳技术大学
 20、广东财经大学
 21、广东金融学院

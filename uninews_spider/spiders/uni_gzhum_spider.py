@@ -1,15 +1,15 @@
-# 广州中医药大学硕士招生公告
+# 广州医科大学硕士招生公告
 
 import scrapy
 import json
 from datetime import datetime
-from uninews_spider.items.uni_gzucm import GzucmItem
+from uninews_spider.items.uni_gzhum import GzhumItem
 
 
 class GZUMpider(scrapy.Spider):
-    name = 'gzucm_spider'
-    allowed_domains = ['yjsy.gzucm.edu.cn']
-    start_urls = ['https://yjsy.gzucm.edu.cn/zsgz1.htm']
+    name = 'gzhum_spider'
+    allowed_domains = ['yjs.gzhmu.edu.cn']
+    start_urls = ['https://yjs.gzhmu.edu.cn/index.htm']
     custom_settings = {
         'DOWNLOAD_DELAY': 2,  # 下载延迟
         'CONCURRENT_REQUESTS': 16,  # 减少并发请求数
@@ -22,7 +22,7 @@ class GZUMpider(scrapy.Spider):
         self.logger.debug("Parsing started for URL: %s", response.url)
 
         # 在此处添加提取硕士招生链接的代码
-        recruitment_url = response.xpath('//*[@id="a_5_1004"]/a/@href').get()
+        recruitment_url = response.xpath('//table/tbody/tr[2]/td/div/a[3]/@href').get()
         if recruitment_url:
             yield response.follow(recruitment_url, callback=self.parse_recruitment_list)
 
@@ -30,13 +30,13 @@ class GZUMpider(scrapy.Spider):
     def parse_recruitment_list(self, response):
         self.logger.debug("Parsing started for URL:%s", response.url)
         # 在此添加提取硕士招生所有公告链接
-        news_links = response.xpath('//table[3]//tr[1]//table[1]//tr[2]//table//tr//td[2]/a/@href').getall()
+        news_links = response.xpath('//*[@id="docspan"]/table//tbody/tr/td/div/a/@href').getall()
         self.logger.info(f"当前页面 {response.url} 包含的所有的url: {news_links}")
         for link in news_links:
             yield response.follow(link, callback=self.parse_news_content)
 
         # 提取下一页的链接并递归跟踪
-        next_page_link = response.xpath('//table[3]//tr[1]//table[1]//tr[2]//table//tr[24]//td[2]/div/a[1]/@href').get()
+        next_page_link = response.xpath('//div[contains(@class,"pb_sys_common")]/span/span[7]/a/@href').get()
         if next_page_link:
             self.logger.info(f"下一页的链接: {next_page_link}")
             yield response.follow(next_page_link, callback=self.parse_news_content)
@@ -46,7 +46,7 @@ class GZUMpider(scrapy.Spider):
     # 爬取数据
     def parse_news_content(self, response):
         # 提取标题
-        title = response.xpath('//h3/text()').get()
+        title = response.xpath('//*[@id="title"]/text()').get()
         if title is not None:
             title = title.strip()
 
@@ -54,10 +54,10 @@ class GZUMpider(scrapy.Spider):
         # source = response.xpath('//div[@class="title"]/p/span[2]/text()').extract_first(default='未知').strip()
 
         # 提取时间
-        date = response.xpath('//tbody/tr[2]/td/table/tbody/tr[2]/td/div/form//div[2]/text()').get().strip()
+        date = response.xpath('//*[@id="date"]/text()').get().strip()
 
         # 提取内容
-        text_content = response.xpath('//*[@id="vsb_content_100"]//div/p/text()').getall()
+        text_content = response.xpath('//*[@id="vsb_content"]//div/p/span/text()').getall()
         content = json.dumps(text_content, ensure_ascii=False).strip()
 
         # 附件
@@ -70,7 +70,7 @@ class GZUMpider(scrapy.Spider):
         # 爬虫时间
         crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        item = GzucmItem(
+        item = GzhumItem(
             title=title,
             # source=source,
             date=date,
