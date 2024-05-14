@@ -91,8 +91,11 @@ uni_smu.py
 }
 
 15、广州中医药大学{
+uni_gzucm_spider.py
+uni_gzucm.py
 
 }
+
 16、广州医科大学
 17、广东医科大学
 18、广东药科大学
