@@ -6,7 +6,11 @@ from datetime import datetime
 from uninews_spider.items.uni_gzucm import GzucmItem
 
 
+<<<<<<< HEAD
 class GZUCMpider(scrapy.Spider):
+=======
+class GZUMpider(scrapy.Spider):
+>>>>>>> 453c9363e1694355f14b782aa65cd113c7eafecb
     name = 'gzucm_spider'
     allowed_domains = ['yjsy.gzucm.edu.cn']
     start_urls = ['https://yjsy.gzucm.edu.cn/zsgz1.htm']
@@ -46,7 +50,11 @@ class GZUCMpider(scrapy.Spider):
     # 爬取数据
     def parse_news_content(self, response):
         # 提取标题
+
         title = response.xpath('//table[3]//tr[1]//table[1]//tr[2]//tr[2]//div/form/div/h3/text()').get()
+=======
+        title = response.xpath('//h3/text()').get()
+>>>>>>> 453c9363e1694355f14b782aa65cd113c7eafecb
         if title is not None:
             title = title.strip()
 
@@ -54,10 +62,17 @@ class GZUCMpider(scrapy.Spider):
         # source = response.xpath('//div[@class="title"]/p/span[2]/text()').extract_first(default='未知').strip()
 
         # 提取时间
+<<<<<<< HEAD
         date = response.xpath('//table[3]//tr[1]//table[1]//tr[2]//tr[2]//div/form/div/div[2]/text()').get().strip()
 
         # 提取内容
         text_content = response.xpath('//*[@id="vsb_content_100"]/div/p/text()').getall()
+=======
+        date = response.xpath('//tbody/tr[2]/td/table/tbody/tr[2]/td/div/form//div[2]/text()').get().strip()
+
+        # 提取内容
+        text_content = response.xpath('//*[@id="vsb_content_100"]//div/p/text()').getall()
+>>>>>>> 453c9363e1694355f14b782aa65cd113c7eafecb
         content = json.dumps(text_content, ensure_ascii=False).strip()
 
         # 附件
