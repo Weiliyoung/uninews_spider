@@ -6,7 +6,7 @@ from datetime import datetime
 from uninews_spider.items.uni_gdut import GdutItem
 
 
-class GDUTpider(scrapy.Spider):
+class GDUTSpider(scrapy.Spider):
     name = 'gdut_spider'
     allowed_domains = ['yzw.gdut.edu.cn']
     start_urls = ['https://yzw.gdut.edu.cn/']

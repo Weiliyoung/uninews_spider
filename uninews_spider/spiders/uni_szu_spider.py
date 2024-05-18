@@ -6,7 +6,7 @@ from datetime import datetime
 from uninews_spider.items.uni_szu import SzuItem
 
 
-class SZUpider(scrapy.Spider):
+class SZUSpider(scrapy.Spider):
     name = 'szu_spider'
     allowed_domains = ['yz.szu.edu.cn']
     start_urls = ['https://yz.szu.edu.cn/']

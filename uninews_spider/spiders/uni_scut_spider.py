@@ -3,10 +3,10 @@
 import scrapy
 import json
 from datetime import datetime
-from uninews_spider.items.uni_szu import SzuItem
+from uninews_spider.items.uni_scut import ScutItem
 
 
-class SZUpider(scrapy.Spider):
+class SCUTSpider(scrapy.Spider):
     name = 'scut_spider'
     allowed_domains = ['yz.scut.edu.cn']
     start_urls = ['https://yz.scut.edu.cn/']
@@ -66,7 +66,7 @@ class SZUpider(scrapy.Spider):
         # 爬虫时间
         crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        item = SzuItem(
+        item = ScutItem(
             title=title,
             # date=date,
             content=content,

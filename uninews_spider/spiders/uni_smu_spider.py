@@ -7,7 +7,7 @@ from datetime import datetime
 from uninews_spider.items.uni_smu import SmuItem
 
 
-class SMUpider(scrapy.Spider):
+class SMUSpider(scrapy.Spider):
     name = 'smu_spider'
     allowed_domains = ['portal.smu.edu.cn']
     start_urls = ['https://portal.smu.edu.cn/yzw/']

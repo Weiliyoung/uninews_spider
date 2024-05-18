@@ -6,7 +6,7 @@ from datetime import datetime
 from uninews_spider.items.uni_sustech import SustechItem
 
 
-class SUSTECHpider(scrapy.Spider):
+class SUSTECHSpider(scrapy.Spider):
     name = 'sustech_spider'
     allowed_domains = ['gs.sustech.edu.cn']
     start_urls = ['https://gs.sustech.edu.cn/#/admission/index']

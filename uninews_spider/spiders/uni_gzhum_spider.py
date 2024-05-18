@@ -6,7 +6,7 @@ from datetime import datetime
 from uninews_spider.items.uni_gzhum import GzhumItem
 
 
-class GZUMpider(scrapy.Spider):
+class GZUMSpider(scrapy.Spider):
     name = 'gzhum_spider'
     allowed_domains = ['yjs.gzhmu.edu.cn']
     start_urls = ['https://yjs.gzhmu.edu.cn/index.htm']
