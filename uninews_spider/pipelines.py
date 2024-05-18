@@ -72,13 +72,13 @@ class UninewsSpiderPipeline:
     def insert_db(self, item):
         values = (
             item['title'],
-            item['source'],
+            # item['source'],
             item['date'],
             item['content'],
             item['url'],
             item['crawl_time']
         )
-        sql = 'INSERT INTO test(title, source, date, content, url, crawl_time) VALUES (%s, %s, %s, %s, %s, %s)'
+        sql = 'INSERT INTO test(title, date, content, url, crawl_time) VALUES (%s,  %s, %s, %s, %s)'
         self.cursor.execute(sql, values)
         self.db_connect.commit()
         print("数据插入成功")

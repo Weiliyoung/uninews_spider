@@ -127,15 +127,21 @@ uni_gdufe.py
 }
 
 21、广东金融学院{
-
+uni_gduf_spider.py
+uni_gduf.py
+：爬取成功
 }
 
 22、广州美术学院{
-
+uni_gzarts_spider.py
+uni_gzarts.py
+：反爬虫机制
 }
 
 23、广东技术师范大学{
-
+uni_gpnu_spider.py
+uni_gpnu.py
+：
 }
 
 24、佛山科学技术学院{
