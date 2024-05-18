@@ -51,7 +51,7 @@ class GDUFESpider(scrapy.Spider):
             default='未知').strip()
 
         # 提取内容，合并所有段落
-        content = ''.join(response.xpath('//*[@id="tts-content"]/div/p/text()').getall()).strip()
+        content = ''.join(response.xpath('//*[@id="tts-content"]/div/p/span/text()').getall()).strip()
 
         # 页面URL
         url = response.url
