@@ -145,7 +145,8 @@ uni_gpnu.py
 }
 
 24、佛山科学技术学院{
-
+uni_fosu_spider.py
+uni_fosu.py
 }
 
 25、五邑大学{
