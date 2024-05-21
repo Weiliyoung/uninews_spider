@@ -150,19 +150,29 @@ uni_fosu.py
 }
 
 25、五邑大学{
-
+uni_wyu_spider.py
+uni_wyu.py
+：成功爬取
 }
 
 26、星海音乐学院{
-
+uni_xhcom_spider.py
+uni_xhcom.py
+：成功爬取
+格式需要修改，有的文章在表格里
 }
 
 27、仲恺农业工程学院{
+uni_zhku_spider.py
+uni_zhku.py
+：
 
 }
 
 28、广东海洋大学{
-
+uni_gdou_spider.py
+uni_gdou.py
+：反爬虫
 }
 
 29、广州体育学院{
