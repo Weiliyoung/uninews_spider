@@ -1,10 +1,10 @@
-# 广东海洋大学
-# 服务于spiders.uni_gdou.py文件
+# 肇庆学院
+# 服务于spiders.uni_zqu.py文件
 # mysql字段的定义
 import scrapy
 
 
-class GdouItem(scrapy.Item):
+class ZquItem(scrapy.Item):
     id = scrapy.Field()
     title = scrapy.Field()
     date = scrapy.Field()

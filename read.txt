@@ -176,19 +176,27 @@ uni_gdou.py
 }
 
 29、广州体育学院{
-
+uni_gzsport_spider.py
+uni_gzsport.py
+：有照片，格式问题；反爬虫/网络不稳定
 }
 
 30、肇庆学院{
-
+uni_zqu_spider.py
+uni_zqu.py
+：反爬虫
 }
 
 31、广东石油化工学院{
-
+uni_gdupt_spider.py
+uni_gdupt.py
+：成功爬取
 }
 
 32、东莞理工学院{
-
+uni_dgut_spider.py
+uni_dgut.py
+：成功
 }
 
 
