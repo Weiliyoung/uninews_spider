@@ -66,6 +66,8 @@ class GDHSCSpider(scrapy.Spider):
         crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         item = TestItem(
+            university_name="广州华商学院",
+            city_name="广州市",
             title=title,
             source=source,
             date=date,

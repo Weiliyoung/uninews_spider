@@ -6,6 +6,8 @@ import scrapy
 
 class TestItem(scrapy.Item):
     id = scrapy.Field()
+    university_name = scrapy.Field()
+    city_name = scrapy.Field()
     title = scrapy.Field()
     source = scrapy.Field()
     date = scrapy.Field()
