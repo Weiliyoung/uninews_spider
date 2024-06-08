@@ -146,3 +146,4 @@ class UninewsSpiderPipeline:
                 (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             self.db_connect.commit()
             return self.cursor.lastrowid
+

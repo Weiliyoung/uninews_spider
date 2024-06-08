@@ -67,6 +67,7 @@ class GDHSCSpider(scrapy.Spider):
 
         item = TestItem(
             university_name="广州华商学院",
+            crawle_name="更新后的爬虫任务",
             city_name="广州市",
             title=title,
             source=source,
