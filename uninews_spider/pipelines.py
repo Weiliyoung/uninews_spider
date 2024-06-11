@@ -79,9 +79,10 @@ class UninewsSpiderPipeline:
     def check_exists(self, item):
         sql = 'SELECT 1 FROM article WHERE url = %s'
         self.cursor.execute(sql, (item['url'],))
-        return self.cursor.fetchone() is not None
+        return self.cursor.fetchone()
 
     def insert_db(self, item):
+        adapter = ItemAdapter(item)
         # 假设你有一个函数来获取 university_id，根据爬虫中的一些标识符
         university_id = self.get_university_id(item)
 
@@ -135,6 +136,7 @@ class UninewsSpiderPipeline:
         # 这个函数需要实现如何根据item内容获取对应的university_id
         # 这可能涉及到查找university表
         # 这里是一个示例实现
+        adapter = ItemAdapter(item)
         university_name = item.get('university_name')
         if not university_name:
             return None  # 或者抛出一个异常
@@ -156,6 +158,7 @@ class UninewsSpiderPipeline:
 
     def get_city_id(self, item):
         # 类似于get_university_id实现，根据item内容获取city_id
+        adapter = ItemAdapter(item)
         city_name = item.get('city_name')
         if not city_name:
             return None  # 或者抛出一个异常

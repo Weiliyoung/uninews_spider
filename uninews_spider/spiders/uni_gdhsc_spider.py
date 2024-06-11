@@ -46,11 +46,14 @@ class GDHSCSpider(scrapy.Spider):
     def parse_news_content(self, response):
         # 提取标题
         title = response.xpath('//h3[@class="l_h3"]/text()').get().strip()
+        title = title.strip() if title else '未知标题'
         # 提取来源
         source = response.xpath('//div[@class="l_zy"]/div[@class="fl"]/font[3]/text()').extract_first(
             default='未知').strip()
+        source = source.strip() if source else '未知来源'
         # 提取时间
         date = response.xpath('//div[@class="l_zy"]/div[@class="fl"]/font[1]/text()').get().strip()
+        date = date.strip() if date else '未知日期'
         # 提取内容，合并所有段落
         content = ''.join(response.xpath('//div[@class="v_news_content"]/p//text()').getall()).strip()
         # 页面URL
