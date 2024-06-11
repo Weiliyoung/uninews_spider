@@ -31,23 +31,23 @@ class UninewsSpiderPipeline:
         self.cursor = self.db_connect.cursor()
         print("数据库连接成功")
 
+        # 获取任务ID
+        self.task_id = spider.settings.get('CRAWLER_TASK_ID')
+
         # 插入新的爬虫任务
         task_name = spider.name
         task_url = spider.start_urls[0]
-        create_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         sql = "INSERT INTO crawler_task (crawler_name, url, status, create_time, update_time) VALUES (%s, %s, %s, %s, %s)"
-        self.cursor.execute(sql, (task_name, task_url, 1, create_time, create_time))  # 初始状态为 1 (失败)
-        self.task_id = self.cursor.lastrowid
+        self.cursor.execute(sql, (task_name, task_url, 1, current_time, current_time))
         self.db_connect.commit()
-
-        spider.settings.set('CRAWLER_TASK_ID', self.task_id)
+        self.task_id = self.cursor.lastrowid
 
     def close_spider(self, spider):
         update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        status = 0 if self.items_scraped > 0 else 1  # 如果抓取到数据，状态为 0，否则为 1
+        status = 0 if self.items_scraped > 0 else 1
         crawler_name = '爬取成功' if self.items_scraped > 0 else '爬取失败'
 
-        # 更新爬虫任务状态
         sql = "UPDATE crawler_task SET status=%s, update_time=%s, crawler_name=%s WHERE id=%s"
         self.cursor.execute(sql, (status, update_time, crawler_name, self.task_id))
         self.db_connect.commit()
@@ -117,8 +117,10 @@ class UninewsSpiderPipeline:
             fields.append('attachment_url')
             values.append(item['attachment_url'])
 
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fields.append('crawl_time')
-        values.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        # values.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        values.append(current_time)
 
         # 动态生成SQL
         fields_str = ', '.join(fields)
@@ -144,6 +146,7 @@ class UninewsSpiderPipeline:
         else:
             # 如果没有找到，可能需要插入新的university记录
             city_id = self.get_city_id(item)
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
                 'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
                 (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -163,6 +166,7 @@ class UninewsSpiderPipeline:
             return result[0]
         else:
             # 如果没有找到，可能需要插入新的city记录
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
                 'INSERT INTO city (city_name, create_time, update_time) VALUES (%s, %s, %s)',
                 (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
