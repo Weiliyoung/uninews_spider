@@ -65,9 +65,11 @@ class GDHSCSpider(scrapy.Spider):
         # 爬虫时间
         crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+        task_id = self.settings.get('CRAWLER_TASK_ID')
+
         item = TestItem(
             university_name="广州华商学院",
-            crawle_name="更新后的爬虫任务",
+            crawler_task_id=task_id,
             city_name="广州市",
             title=title,
             source=source,

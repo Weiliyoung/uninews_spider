@@ -8,7 +8,7 @@ class TestItem(scrapy.Item):
     id = scrapy.Field()
     university_name = scrapy.Field()
     city_name = scrapy.Field()
-    crawler_name = scrapy.Field()
+    crawler_task_id = scrapy.Field()
     title = scrapy.Field()
     source = scrapy.Field()
     date = scrapy.Field()

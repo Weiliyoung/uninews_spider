@@ -7,8 +7,9 @@
 # useful for handling different item types with a single interface
 
 import pymysql
-from itemadapter import ItemAdapter
+from itemadapter import ItemAdapter, adapter
 from datetime import datetime
+
 
 class UninewsSpiderPipeline:
     def __init__(self):
@@ -30,7 +31,27 @@ class UninewsSpiderPipeline:
         self.cursor = self.db_connect.cursor()
         print("数据库连接成功")
 
+        # 插入新的爬虫任务
+        task_name = spider.name
+        task_url = spider.start_urls[0]
+        create_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        sql = "INSERT INTO crawler_task (crawler_name, url, status, create_time, update_time) VALUES (%s, %s, %s, %s, %s)"
+        self.cursor.execute(sql, (task_name, task_url, 1, create_time, create_time))  # 初始状态为 1 (失败)
+        self.task_id = self.cursor.lastrowid
+        self.db_connect.commit()
+
+        spider.settings.set('CRAWLER_TASK_ID', self.task_id)
+
     def close_spider(self, spider):
+        update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        status = 0 if self.items_scraped > 0 else 1  # 如果抓取到数据，状态为 0，否则为 1
+        crawler_name = '爬取成功' if self.items_scraped > 0 else '爬取失败'
+
+        # 更新爬虫任务状态
+        sql = "UPDATE crawler_task SET status=%s, update_time=%s, crawler_name=%s WHERE id=%s"
+        self.cursor.execute(sql, (status, update_time, crawler_name, self.task_id))
+        self.db_connect.commit()
+
         self.db_connect.close()
         self.file_scraped.close()
         self.file_skipped.close()
@@ -65,8 +86,8 @@ class UninewsSpiderPipeline:
         university_id = self.get_university_id(item)
 
         # 动态生成字段和对应的值
-        fields = ['university_id']
-        values = [university_id]
+        fields = ['university_id', 'crawler_task_id']
+        values = [university_id, adapter['crawler_task_id']]
 
         if 'title' in item:
             fields.append('title')
@@ -125,7 +146,8 @@ class UninewsSpiderPipeline:
             city_id = self.get_city_id(item)
             self.cursor.execute(
                 'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
-                (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             self.db_connect.commit()
             return self.cursor.lastrowid
 
@@ -146,4 +168,3 @@ class UninewsSpiderPipeline:
                 (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             self.db_connect.commit()
             return self.cursor.lastrowid
-
