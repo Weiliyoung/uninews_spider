@@ -1,5 +1,6 @@
 import scrapy
 from datetime import datetime
+
 from uninews_spider.items.uni_gdhsc import TestItem
 
 
@@ -12,6 +13,42 @@ class GDHSCSpider(scrapy.Spider):
         'CONCURRENT_REQUESTS': 16,  # 减少并发请求数
         'CONCURRENT_REQUESTS_PER_DOMAIN': 8,  # 针对同一域名的并发请求
     }
+
+    def __init__(self, *args, **kwargs):
+        super(GDHSCSpider, self).__init__(*args, **kwargs)
+        self.task_id = None
+        self.task_name = None
+
+    def get_task_info(self):
+        # 连接数据库获取任务信息
+        host = self.settings.get('MYSQL_HOST')
+        user = self.settings.get('MYSQL_USER')
+        password = self.settings.get('MYSQL_PASSWORD')
+        database = self.settings.get('MYSQL_DATABASE')
+        port = self.settings.get('MYSQL_PORT')
+        connection = pymysql.connect(
+            host=host, user=user, password=password,
+            database=database, port=port, charset='utf8mb4'
+        )
+        cursor = connection.cursor()
+        cursor.execute("SELECT id, crawler_name, url FROM crawler_task WHERE assigned = FALSE LIMIT 1")
+        result = cursor.fetchone()
+        if result:
+            self.task_id, self.task_name, start_url = result
+            cursor.execute("UPDATE crawler_task SET assigned = TRUE WHERE id = %s", (self.task_id,))
+            connection.commit()
+            self.start_urls = [start_url]
+        connection.close()
+
+    def open_spider(self, spider):
+        self.get_task_info()
+        if not self.task_id:
+            self.logger.error("没有未分配的爬虫任务")
+            raise CloseSpider(reason="没有未分配的爬虫任务")
+
+        spider.settings.set('CRAWLER_TASK_ID', self.task_id)
+        spider.settings.set('CRAWLER_NAME', self.task_name)
+        self.logger.info(f"任务ID: {self.task_id}, 任务名称: {self.task_name}")
 
     def parse(self, response):
         self.logger.debug("Parsing started for URL: %s", response.url)

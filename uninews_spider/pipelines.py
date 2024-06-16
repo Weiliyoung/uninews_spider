@@ -33,15 +33,7 @@ class UninewsSpiderPipeline:
 
         # 获取任务ID
         self.task_id = spider.settings.get('CRAWLER_TASK_ID')
-
-        # 插入新的爬虫任务
-        task_name = spider.name
-        task_url = spider.start_urls[0]
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        sql = "INSERT INTO crawler_task (crawler_name, url, status, create_time, update_time) VALUES (%s, %s, %s, %s, %s)"
-        self.cursor.execute(sql, (task_name, task_url, 1, current_time, current_time))
-        self.db_connect.commit()
-        self.task_id = self.cursor.lastrowid
+        self.task_name = spider.settings.get('CRAWLER_NAME')
 
     def close_spider(self, spider):
         update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -80,6 +72,50 @@ class UninewsSpiderPipeline:
         sql = 'SELECT 1 FROM article WHERE url = %s'
         self.cursor.execute(sql, (item['url'],))
         return self.cursor.fetchone()
+
+    def get_university_id(self, item):
+        # 这个函数需要实现如何根据item内容获取对应的university_id
+        # 这可能涉及到查找university表
+        # 这里是一个示例实现
+        adapter = ItemAdapter(item)
+        university_name = item.get('university_name')
+        if not university_name:
+            return None  # 或者抛出一个异常
+
+        self.cursor.execute('SELECT id FROM university WHERE university_name = %s', (university_name,))
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            # 如果没有找到，可能需要插入新的university记录
+            city_id = self.get_city_id(item)
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            self.cursor.execute(
+                'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
+                (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            self.db_connect.commit()
+            return self.cursor.lastrowid
+
+    def get_city_id(self, item):
+        # 类似于get_university_id实现，根据item内容获取city_id
+        adapter = ItemAdapter(item)
+        city_name = item.get('city_name')
+        if not city_name:
+            return None  # 或者抛出一个异常
+
+        self.cursor.execute('SELECT id FROM city WHERE city_name = %s', (city_name,))
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            # 如果没有找到，可能需要插入新的city记录
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            self.cursor.execute(
+                'INSERT INTO city (city_name, create_time, update_time) VALUES (%s, %s, %s)',
+                (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            self.db_connect.commit()
+            return self.cursor.lastrowid
 
     def insert_db(self, item):
         adapter = ItemAdapter(item)
@@ -132,46 +168,4 @@ class UninewsSpiderPipeline:
         self.db_connect.commit()
         print("数据插入成功")
 
-    def get_university_id(self, item):
-        # 这个函数需要实现如何根据item内容获取对应的university_id
-        # 这可能涉及到查找university表
-        # 这里是一个示例实现
-        adapter = ItemAdapter(item)
-        university_name = item.get('university_name')
-        if not university_name:
-            return None  # 或者抛出一个异常
 
-        self.cursor.execute('SELECT id FROM university WHERE university_name = %s', (university_name,))
-        result = self.cursor.fetchone()
-        if result:
-            return result[0]
-        else:
-            # 如果没有找到，可能需要插入新的university记录
-            city_id = self.get_city_id(item)
-            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            self.cursor.execute(
-                'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
-                (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            self.db_connect.commit()
-            return self.cursor.lastrowid
-
-    def get_city_id(self, item):
-        # 类似于get_university_id实现，根据item内容获取city_id
-        adapter = ItemAdapter(item)
-        city_name = item.get('city_name')
-        if not city_name:
-            return None  # 或者抛出一个异常
-
-        self.cursor.execute('SELECT id FROM city WHERE city_name = %s', (city_name,))
-        result = self.cursor.fetchone()
-        if result:
-            return result[0]
-        else:
-            # 如果没有找到，可能需要插入新的city记录
-            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            self.cursor.execute(
-                'INSERT INTO city (city_name, create_time, update_time) VALUES (%s, %s, %s)',
-                (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            self.db_connect.commit()
-            return self.cursor.lastrowid
