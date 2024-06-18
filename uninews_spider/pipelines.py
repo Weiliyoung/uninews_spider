@@ -5,11 +5,9 @@
 
 
 # useful for handling different item types with a single interface
-
 import pymysql
-from itemadapter import ItemAdapter, adapter
+from itemadapter import ItemAdapter
 from datetime import datetime
-
 
 class UninewsSpiderPipeline:
     def __init__(self):
@@ -31,9 +29,23 @@ class UninewsSpiderPipeline:
         self.cursor = self.db_connect.cursor()
         print("数据库连接成功")
 
-        # 获取任务ID
-        self.task_id = spider.settings.get('CRAWLER_TASK_ID')
-        self.task_name = spider.settings.get('CRAWLER_NAME')
+        # 创建爬虫任务
+        url = spider.start_urls[0]
+        create_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        insert_sql = """
+            INSERT INTO crawler_task (url, crawler_name, status, create_time, update_time)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        self.cursor.execute(insert_sql, (url, '爬取任务创建', 0, create_time, create_time))
+        self.db_connect.commit()
+
+        self.cursor.execute("SELECT LAST_INSERT_ID()")
+        self.task_id = self.cursor.fetchone()[0]
+        self.task_name = '爬取成功'
+
+        # 设置爬虫任务 ID 和名称到爬虫实例中
+        spider.crawler_task_id = self.task_id
+        spider.crawler_name = self.task_name
 
     def close_spider(self, spider):
         update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -74,10 +86,6 @@ class UninewsSpiderPipeline:
         return self.cursor.fetchone()
 
     def get_university_id(self, item):
-        # 这个函数需要实现如何根据item内容获取对应的university_id
-        # 这可能涉及到查找university表
-        # 这里是一个示例实现
-        adapter = ItemAdapter(item)
         university_name = item.get('university_name')
         if not university_name:
             return None  # 或者抛出一个异常
@@ -92,14 +100,11 @@ class UninewsSpiderPipeline:
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
                 'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
-                (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                (city_id, university_name, current_time, current_time))
             self.db_connect.commit()
             return self.cursor.lastrowid
 
     def get_city_id(self, item):
-        # 类似于get_university_id实现，根据item内容获取city_id
-        adapter = ItemAdapter(item)
         city_name = item.get('city_name')
         if not city_name:
             return None  # 或者抛出一个异常
@@ -113,18 +118,16 @@ class UninewsSpiderPipeline:
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
                 'INSERT INTO city (city_name, create_time, update_time) VALUES (%s, %s, %s)',
-                (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                (city_name, current_time, current_time))
             self.db_connect.commit()
             return self.cursor.lastrowid
 
     def insert_db(self, item):
-        adapter = ItemAdapter(item)
-        # 假设你有一个函数来获取 university_id，根据爬虫中的一些标识符
         university_id = self.get_university_id(item)
 
         # 动态生成字段和对应的值
         fields = ['university_id', 'crawler_task_id']
-        values = [university_id, adapter['crawler_task_id']]
+        values = [university_id, item['crawler_task_id']]
 
         if 'title' in item:
             fields.append('title')
@@ -156,7 +159,6 @@ class UninewsSpiderPipeline:
 
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fields.append('crawl_time')
-        # values.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         values.append(current_time)
 
         # 动态生成SQL
@@ -167,5 +169,3 @@ class UninewsSpiderPipeline:
         self.cursor.execute(sql, values)
         self.db_connect.commit()
         print("数据插入成功")
-
-

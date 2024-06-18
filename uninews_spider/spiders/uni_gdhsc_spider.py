@@ -1,3 +1,4 @@
+import pymysql
 import scrapy
 from datetime import datetime
 
@@ -15,40 +16,9 @@ class GDHSCSpider(scrapy.Spider):
     }
 
     def __init__(self, *args, **kwargs):
-        super(GDHSCSpider, self).__init__(*args, **kwargs)
-        self.task_id = None
-        self.task_name = None
-
-    def get_task_info(self):
-        # 连接数据库获取任务信息
-        host = self.settings.get('MYSQL_HOST')
-        user = self.settings.get('MYSQL_USER')
-        password = self.settings.get('MYSQL_PASSWORD')
-        database = self.settings.get('MYSQL_DATABASE')
-        port = self.settings.get('MYSQL_PORT')
-        connection = pymysql.connect(
-            host=host, user=user, password=password,
-            database=database, port=port, charset='utf8mb4'
-        )
-        cursor = connection.cursor()
-        cursor.execute("SELECT id, crawler_name, url FROM crawler_task WHERE assigned = FALSE LIMIT 1")
-        result = cursor.fetchone()
-        if result:
-            self.task_id, self.task_name, start_url = result
-            cursor.execute("UPDATE crawler_task SET assigned = TRUE WHERE id = %s", (self.task_id,))
-            connection.commit()
-            self.start_urls = [start_url]
-        connection.close()
-
-    def open_spider(self, spider):
-        self.get_task_info()
-        if not self.task_id:
-            self.logger.error("没有未分配的爬虫任务")
-            raise CloseSpider(reason="没有未分配的爬虫任务")
-
-        spider.settings.set('CRAWLER_TASK_ID', self.task_id)
-        spider.settings.set('CRAWLER_NAME', self.task_name)
-        self.logger.info(f"任务ID: {self.task_id}, 任务名称: {self.task_name}")
+        super().__init__(*args, **kwargs)
+        self.crawler_task_id = kwargs.get('crawler_task_id')
+        self.crawler_name = kwargs.get('crawler_name')
 
     def parse(self, response):
         self.logger.debug("Parsing started for URL: %s", response.url)
@@ -97,11 +67,10 @@ class GDHSCSpider(scrapy.Spider):
         url = response.url
         # 爬虫时间
         crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        task_id = self.settings.get('CRAWLER_TASK_ID')
 
         item = TestItem(
             university_name="广州华商学院",
-            crawler_task_id=task_id,
+            crawler_task_id=self.crawler_task_id,
             city_name="广州市",
             title=title,
             source=source,
