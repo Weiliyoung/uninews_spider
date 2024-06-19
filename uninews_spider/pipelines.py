@@ -9,6 +9,7 @@ import pymysql
 from itemadapter import ItemAdapter
 from datetime import datetime
 
+
 class UninewsSpiderPipeline:
     def __init__(self):
         self.items_scraped = 0
@@ -29,33 +30,7 @@ class UninewsSpiderPipeline:
         self.cursor = self.db_connect.cursor()
         print("数据库连接成功")
 
-        # 创建爬虫任务
-        url = spider.start_urls[0]
-        create_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        insert_sql = """
-            INSERT INTO crawler_task (url, crawler_name, status, create_time, update_time)
-            VALUES (%s, %s, %s, %s, %s)
-        """
-        self.cursor.execute(insert_sql, (url, '爬取任务创建', 0, create_time, create_time))
-        self.db_connect.commit()
-
-        self.cursor.execute("SELECT LAST_INSERT_ID()")
-        self.task_id = self.cursor.fetchone()[0]
-        self.task_name = '爬取成功'
-
-        # 设置爬虫任务 ID 和名称到爬虫实例中
-        spider.crawler_task_id = self.task_id
-        spider.crawler_name = self.task_name
-
     def close_spider(self, spider):
-        update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        status = 0 if self.items_scraped > 0 else 1
-        crawler_name = '爬取成功' if self.items_scraped > 0 else '爬取失败'
-
-        sql = "UPDATE crawler_task SET status=%s, update_time=%s, crawler_name=%s WHERE id=%s"
-        self.cursor.execute(sql, (status, update_time, crawler_name, self.task_id))
-        self.db_connect.commit()
-
         self.db_connect.close()
         self.file_scraped.close()
         self.file_skipped.close()
@@ -100,7 +75,8 @@ class UninewsSpiderPipeline:
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
                 'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
-                (city_id, university_name, current_time, current_time))
+                (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             self.db_connect.commit()
             return self.cursor.lastrowid
 
@@ -118,7 +94,7 @@ class UninewsSpiderPipeline:
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
                 'INSERT INTO city (city_name, create_time, update_time) VALUES (%s, %s, %s)',
-                (city_name, current_time, current_time))
+                (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             self.db_connect.commit()
             return self.cursor.lastrowid
 
@@ -169,3 +145,4 @@ class UninewsSpiderPipeline:
         self.cursor.execute(sql, values)
         self.db_connect.commit()
         print("数据插入成功")
+

@@ -1,4 +1,3 @@
-import pymysql
 import scrapy
 from datetime import datetime
 
@@ -14,11 +13,6 @@ class GDHSCSpider(scrapy.Spider):
         'CONCURRENT_REQUESTS': 16,  # 减少并发请求数
         'CONCURRENT_REQUESTS_PER_DOMAIN': 8,  # 针对同一域名的并发请求
     }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.crawler_task_id = kwargs.get('crawler_task_id')
-        self.crawler_name = kwargs.get('crawler_name')
 
     def parse(self, response):
         self.logger.debug("Parsing started for URL: %s", response.url)
@@ -51,42 +45,34 @@ class GDHSCSpider(scrapy.Spider):
             self.logger.info(f"没有下一页了")
 
     def parse_news_content(self, response):
-        # 提取标题
-        title = response.xpath('//h3[@class="l_h3"]/text()').get().strip()
-        title = title.strip() if title else '未知标题'
-        # 提取来源
-        source = response.xpath('//div[@class="l_zy"]/div[@class="fl"]/font[3]/text()').extract_first(
-            default='未知').strip()
-        source = source.strip() if source else '未知来源'
-        # 提取时间
-        date = response.xpath('//div[@class="l_zy"]/div[@class="fl"]/font[1]/text()').get().strip()
-        date = date.strip() if date else '未知日期'
-        # 提取内容，合并所有段落
-        content = ''.join(response.xpath('//div[@class="v_news_content"]/p//text()').getall()).strip()
-        # 页面URL
-        url = response.url
-        # 爬虫时间
-        crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        try:
+            # 提取标题
+            title = response.xpath('//h3[@class="l_h3"]/text()').get().strip()
+            title = title.strip() if title else '未知标题'
+            # 提取来源
+            source = response.xpath('//div[@class="l_zy"]/div[@class="fl"]/font[3]/text()').extract_first(
+                default='未知').strip()
+            source = source.strip() if source else '未知来源'
+            # 提取时间
+            date = response.xpath('//div[@class="l_zy"]/div[@class="fl"]/font[1]/text()').get().strip()
+            date = date.strip() if date else '未知日期'
+            # 提取内容，合并所有段落
+            content = ''.join(response.xpath('//div[@class="v_news_content"]/p//text()').getall()).strip()
+            # 页面URL
+            url = response.url
+            # 爬虫时间
+            crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        item = TestItem(
-            university_name="广州华商学院",
-            crawler_task_id=self.crawler_task_id,
-            city_name="广州市",
-            title=title,
-            source=source,
-            date=date,
-            content=content,
-            url=url,
-            crawl_time=crawl_time,
-        )
-
-        # 组装数据
-        yield item  # 返回Item对象
-        # yield {
-        #     'title': title,
-        #     'source': source,
-        #     'date': date,
-        #     'content': content,
-        #     'url': url,
-        #     'crawl_time': crawl_time
-        # }
+            item = TestItem(
+                university_name="广州华商学院",
+                city_name="广州市",
+                title=title,
+                source=source,
+                date=date,
+                content=content,
+                url=url,
+                crawl_time=crawl_time,
+            )
+            yield item  # 返回Item对象
+        except Exception as e:
+            self.logger.error(f"Error parsing news content at {response.url}: {e}")
