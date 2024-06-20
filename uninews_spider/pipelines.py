@@ -42,6 +42,7 @@ class UninewsSpiderPipeline:
             if self.check_exists(item):
                 self.items_skipped += 1
                 self.file_skipped.write(item['url'] + '\n')
+                self.update_status(item, 0, '更新爬虫成功')
                 print("数据已存在，无需插入")
                 return item
             else:
@@ -53,6 +54,7 @@ class UninewsSpiderPipeline:
             self.items_failed += 1
             self.file_failed.write(item['url'] + '\n')
             spider.logger.error(f"处理 {item['url']} 时出错: {str(e)}")
+            self.update_status(item, 1, '爬取失败')
             return item
 
     def check_exists(self, item):
@@ -74,9 +76,8 @@ class UninewsSpiderPipeline:
             city_id = self.get_city_id(item)
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
-                'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
-                (city_id, university_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                 'INSERT INTO university (city_id, university_name, create_time, update_time) VALUES (%s, %s, %s, %s)',
+                (city_id, university_name, current_time, current_time))
             self.db_connect.commit()
             return self.cursor.lastrowid
 
@@ -94,7 +95,7 @@ class UninewsSpiderPipeline:
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.cursor.execute(
                 'INSERT INTO city (city_name, create_time, update_time) VALUES (%s, %s, %s)',
-                (city_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                (city_name, current_time, current_time))
             self.db_connect.commit()
             return self.cursor.lastrowid
 
@@ -102,8 +103,15 @@ class UninewsSpiderPipeline:
         university_id = self.get_university_id(item)
 
         # 动态生成字段和对应的值
-        fields = ['university_id', 'crawler_task_id']
-        values = [university_id, item['crawler_task_id']]
+        fields = ['university_id']
+        values = [university_id]
+
+        if 'crawler_task_id' in item:
+            fields.append('crawler_task_id')
+            values.append(item['crawler_task_id'])
+        else:
+            fields.append('crawler_task_id')
+            values.append(None)
 
         if 'title' in item:
             fields.append('title')
@@ -133,8 +141,16 @@ class UninewsSpiderPipeline:
             fields.append('attachment_url')
             values.append(item['attachment_url'])
 
+        fields.append('status')
+        values.append(0)  # 成功状态
+
+        fields.append('crawler_name')
+        values.append('爬取成功')
+
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fields.append('crawl_time')
+        values.append(current_time)
+        fields.append('update_time')
         values.append(current_time)
 
         # 动态生成SQL
@@ -146,3 +162,8 @@ class UninewsSpiderPipeline:
         self.db_connect.commit()
         print("数据插入成功")
 
+    def update_status(self, item, status, crawler_name):
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        sql = 'UPDATE article SET status = %s, crawler_name = %s, update_time = %s WHERE url = %s'
+        self.cursor.execute(sql, (status, crawler_name, current_time, item['url']))
+        self.db_connect.commit()

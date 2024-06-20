@@ -14,6 +14,8 @@ class TestItem(scrapy.Item):
     content = scrapy.Field()
     url = scrapy.Field()
     crawl_time = scrapy.Field()
+    crawler_task_id = scrapy.Field()
+    crawler_name = scrapy.Field()
 
 
 pass

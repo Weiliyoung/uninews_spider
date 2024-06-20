@@ -72,6 +72,8 @@ class GDHSCSpider(scrapy.Spider):
                 content=content,
                 url=url,
                 crawl_time=crawl_time,
+                crawler_task_id=None,  # 或设置为实际的任务 ID
+                crawler_name=self.name
             )
             yield item  # 返回Item对象
         except Exception as e:
