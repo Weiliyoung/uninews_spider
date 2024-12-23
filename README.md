@@ -87,6 +87,14 @@ python -m venv venv
 - `dev`：开发分支，用于日常开发。
 - 功能分支：从`dev`分支检出，每个功能一个分支，完成后合并回`dev`。
 
+### 拉取信息
+
+拉取远程更改
+
+```bash
+git pull
+```
+
 ### 提交信息
 
 提交信息应该清晰描述改动的内容，例如：
@@ -94,6 +102,42 @@ python -m venv venv
 ```bash
 git commit -m "添加了对某大学招生信息的爬取功能"
 ```
+
+### 添加更改
+
+```bash
+git add .
+git commit -m "描述提交的更改"
+git push            --如果你的远程分支不是 origin，你需要指定远程分支的名称。git push origin main
+```
+
+### 解决拉取提交信息冲突
+
+拉取远程更改。首先，执行命令来拉取远程仓库的更改到本地：
+
+```bash
+git pull origin main
+```
+这会将远程仓库的 main 分支上的更改拉取到本地仓库，并尝试自动合并。
+
+```bash
+解决冲突（如果有）： 如果 git pull 命令执行后提示发生了冲突，你需要手动解决这些冲突。打开冲突文件，手动编辑冲突内容，解决冲突后保存文件。
+```
+
+解决完冲突后，
+使用 git add 命令将解决冲突后的文件添加到暂存区，然后使用 git commit 命令提交解决冲突的更改：
+
+```bash
+git add .
+git commit -m "解决冲突"
+```
+
+推送更改： 最后，再次尝试推送你的更改到 GitHub：
+
+```bash
+git push origin main
+```
+
 
 ## 运行项目
 
